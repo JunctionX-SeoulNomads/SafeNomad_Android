@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:safe_nomad/pages/driver.dart';
 import 'package:safe_nomad/pages/nomad.dart';
+import 'package:safe_nomad/pages/report.dart';
 import 'dart:async';
+
 void main() {
   runApp(MyApp());
 }
@@ -24,6 +26,8 @@ class MyApp extends StatelessWidget {
             return  MaterialPageRoute(builder: (_) => DriverRoute(routerSettings.arguments));
           case '/nomad_main':
             return MaterialPageRoute(builder: (_) => NomadRoute(routerSettings.arguments));
+          case '/report':
+            return MaterialPageRoute(builder: (_) => ReportPage(routerSettings.arguments));
           default:
             return MaterialPageRoute(builder: (_) =>MyHomePage(title: 'Unknown'));
 
