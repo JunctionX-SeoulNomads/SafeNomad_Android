@@ -5,7 +5,8 @@ import 'package:http/http.dart' as http;
 import 'package:location/location.dart';
 double longitude;
 double latitude;
-void _sendReport(String Message) async {
+String userID;
+Future<String> _sendReport(String Message) async {
   Location location = new Location();
 
   bool _serviceEnabled;
@@ -33,14 +34,15 @@ void _sendReport(String Message) async {
   latitude = _locationData.latitude;
   longitude = _locationData.longitude;
   final response = await http.post(
-    Uri.parse('https://safe-nomad.herokuapp.com/driver'),
+    Uri.parse('https://safe-nomad.herokuapp.com/complain'),
     headers: <String, String>{
       'Content-Type': 'application/json; charset=utf-8',
     },
     body: jsonEncode(<String, dynamic>{
+      'userId': userID,
+      'message': Message,
       'longitude': longitude,
       'latitude' : latitude,
-      'message': Message,
     }),
   );
 
@@ -49,26 +51,51 @@ void _sendReport(String Message) async {
     // then parse the JSON.
     print('reported');
     print(Message);
+    return Message;
   } else {
     // If the server did not return a 201 CREATED response,
     // then throw an exception.
     throw Exception('Failed to create response.');
   }
-  return;
+
 }
 class ReportPage extends StatelessWidget {
   final Map<String, String> arguments;
+  Future<String> Response;
   ReportPage(this.arguments);
   final messageController = TextEditingController();
   @override
   Widget build(BuildContext context) {
-
+    userID = arguments['user'];
     return Scaffold(
 
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
         children:[
+          FutureBuilder<String>(
+            future: Response,
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+
+                return AlertDialog(
+                  title: const Text('Notification'),
+                  content: const Text('Your message has been sent'),
+                  actions: <Widget>[
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, 'OK'),
+                      child: const Text('OK'),
+                    ),
+                  ],
+                );
+              } else if (snapshot.hasError) {
+                return Text("${snapshot.error}");
+              }
+
+              // By default, show a loading spinner.
+              return SizedBox();
+            },
+          ),
           Card(
               color: Colors.white,
               child: Padding(
@@ -80,17 +107,19 @@ class ReportPage extends StatelessWidget {
                 ),
               )
           ),
+          Divider(),
           SizedBox(
             width:  MediaQuery.of(context).size.width * 0.3,
             height:  MediaQuery.of(context).size.width * 0.2,
                 child:ElevatedButton(
                     onPressed: () {
-                      _sendReport(messageController.text.toString());
+                      Response = _sendReport(messageController.text.toString());
                       //Navigator.pop(context);// Navigate back to first route when tapped.
                     },
                     child: Text('Report!'),
             ),
-          )
+          ),
+
     ]
       ),
     ),

@@ -6,6 +6,7 @@ import 'package:location/location.dart';
 import 'package:http/http.dart' as http;
 double longitude;
 double latitude;
+String userID;
  _getLocation() async {
   Location location = new Location();
 
@@ -38,7 +39,8 @@ double latitude;
     headers: <String, String>{
       'Content-Type': 'application/json; charset=utf-8',
     },
-    body: jsonEncode(<String, double>{
+    body: jsonEncode(<String, dynamic>{
+      'userId': userID,
       'longitude': longitude,
       'latitude' : latitude,
     }),
@@ -64,10 +66,13 @@ class DriverRoute extends StatelessWidget {
  // Future<LocationData> driver_location;
   @override
   Widget build(BuildContext context) {
+    userID = arguments['user'];
     CustomTimer timer = new CustomTimer(5, _getLocation);
     timer.startTime();
     return Scaffold(
-      body: Column(
+      body: Center(
+        child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
         children:[
           ElevatedButton(
             onPressed: () {
@@ -78,6 +83,7 @@ class DriverRoute extends StatelessWidget {
         ),
 
         ]
+      ),
       ),
     );
   }

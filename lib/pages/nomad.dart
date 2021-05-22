@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:location/location.dart';
 double longitude;
 double latitude;
+String userID;
 void _getLocation() async {
   Location location = new Location();
 
@@ -34,11 +35,12 @@ void _getLocation() async {
   latitude = _locationData.latitude;
   longitude = _locationData.longitude;
   final response = await http.post(
-    Uri.parse('https://safe-nomad.herokuapp.com/driver'),
+    Uri.parse('https://safe-nomad.herokuapp.com/user'),
     headers: <String, String>{
       'Content-Type': 'application/json; charset=utf-8',
     },
-    body: jsonEncode(<String, double>{
+    body: jsonEncode(<String, dynamic>{
+      'userId': userID,
       'longitude': longitude,
       'latitude' : latitude,
     }),
@@ -49,6 +51,7 @@ void _getLocation() async {
     // then parse the JSON.
     print('success');
   } else {
+    print(response.statusCode);
     // If the server did not return a 201 CREATED response,
     // then throw an exception.
     throw Exception('Failed to create response.');
@@ -60,6 +63,7 @@ class NomadRoute extends StatelessWidget {
   NomadRoute(this.arguments);
   @override
   Widget build(BuildContext context) {
+    userID = arguments['user'];
     CustomTimer timer = new CustomTimer(10, _getLocation);
     timer.startTime();
     return Scaffold(
@@ -76,7 +80,7 @@ class NomadRoute extends StatelessWidget {
                       fontWeight: FontWeight.bold)),
               onPressed: () {
                 timer.stopTimer();
-                Navigator.pushNamed(context, '/report', arguments: {"user": "user"});
+                Navigator.pushNamed(context, '/report', arguments: {"user": arguments['user']});
 
                 //timer.startTime();
               },
