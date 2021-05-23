@@ -93,7 +93,7 @@ class ReportPage extends StatelessWidget {
               }
 
               // By default, show a loading spinner.
-              return SizedBox();
+              return CircularProgressIndicator();
             },
           ),
           Card(
